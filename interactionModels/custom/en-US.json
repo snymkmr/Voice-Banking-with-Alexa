@@ -1,0 +1,174 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "voice banking",
+      "intents": [
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "HelloWorldIntent",
+          "slots": [],
+          "samples": [
+            "merhaba",
+            "vanakam",
+            "namaste",
+            "hey",
+            "hello",
+            "hi"
+          ]
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "name": "ViewAccountIntent",
+          "slots": [],
+          "samples": [
+            "how much do i have in my account"
+          ]
+        },
+        {
+          "name": "PayBillIntent",
+          "slots": [],
+          "samples": [
+            "how much do I owe for credit card"
+          ]
+        },
+        {
+          "name": "FundTransferIntent",
+          "slots": [],
+          "samples": [
+            "i\u0027d like to tranfer fund"
+          ]
+        },
+        {
+          "name": "ConnectSupportIntent",
+          "slots": [],
+          "samples": [
+            "i\u0027d like to connect with support team"
+          ]
+        },
+        {
+          "name": "BlockCardIntent",
+          "slots": [
+            {
+              "name": "card",
+              "type": "card_type",
+              "samples": [
+                "{card}"
+              ],
+              "multipleValues": {
+                "enabled": true
+              }
+            }
+          ],
+          "samples": [
+            "block my {card}",
+            "i\u0027d like to block my {card}"
+          ]
+        }
+      ],
+      "types": [
+        {
+          "values": [
+            {
+              "name": {
+                "value": "credit"
+              }
+            },
+            {
+              "name": {
+                "value": "credit card"
+              }
+            },
+            {
+              "name": {
+                "value": "debit card"
+              }
+            },
+            {
+              "name": {
+                "value": "debit"
+              }
+            }
+          ],
+          "name": "card_type"
+        }
+      ],
+      "modelConfiguration": {
+        "fallbackIntentSensitivity": {
+          "level": "LOW"
+        }
+      }
+    },
+    "dialog": {
+      "intents": [
+        {
+          "name": "BlockCardIntent",
+          "confirmationRequired": false,
+          "prompts": {},
+          "slots": [
+            {
+              "name": "card",
+              "type": "card_type",
+              "elicitationRequired": true,
+              "confirmationRequired": false,
+              "prompts": {
+                "elicitation": "Elicit.Slot.523159491626.181035693870"
+              },
+              "validations": [
+                {
+                  "type": "isInSet",
+                  "prompt": "Slot.Validation.523159491626.181035693870.747836247232",
+                  "values": [
+                    "debit card",
+                    "credit card",
+                    "credit",
+                    "debit"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "delegationStrategy": "ALWAYS"
+    },
+    "prompts": [
+      {
+        "id": "Slot.Validation.523159491626.181035693870.747836247232",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "you can block either debit card or credit card."
+          }
+        ]
+      },
+      {
+        "id": "Elicit.Slot.523159491626.181035693870",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "which card would you like to block?"
+          }
+        ]
+      }
+    ]
+  },
+  "version": "7"
+}
