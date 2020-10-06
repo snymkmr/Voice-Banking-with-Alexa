@@ -5,12 +5,25 @@
  * */
 const Alexa = require('ask-sdk-core');
 
+var json = {
+    balance: 89957,
+    cc: {
+        full: 15000,
+        base: 5232
+    },
+    ben: [
+        'mom',
+        'dad',
+        'landlord'
+    ]
+};
+
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
     },
     handle(handlerInput) {
-        const speakOutput = 'Welcome to voice Banking! you can ask me question related to account balance, fund tranfer, credit card bill and customer care support. what would you like to do?';
+        const speakOutput = 'Hi, welcome to voice banking! what can i do for you?';
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
@@ -19,13 +32,13 @@ const LaunchRequestHandler = {
     }
 };
 
-const ViewAccountIntentHandler = {
+const CheckBalanceIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'ViewAccountIntent';
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'CheckBalanceIntent';
     },
     handle(handlerInput) {
-        const speakOutput = sany.name + ', you have ' + sany.balance + ' rupees';
+        const speakOutput = 'you have ' + json.balance + ' rupees in your account';
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
@@ -34,31 +47,15 @@ const ViewAccountIntentHandler = {
     }
 };
 
-const BlockCardIntentHandler = {
+const FreezeCardIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'BlockCardIntent';
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'FreezeCardIntent';
     },
     handle(handlerInput) {
-        
         var card = handlerInput.requestEnvelope.request.intent.slots.card.value;
 
-        const speakOutput = sany.name + ', your ' + card + ' has been block. would you like me to connect support to further assist you?';
-
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
-            .getResponse();
-    }
-}
-
-const HelloWorldIntentHandler = {
-    canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'HelloWorldIntent';
-    },
-    handle(handlerInput) {
-        const speakOutput = 'Hello! this is Voice Banking with Alexa, how can I assist?';
+        const speakOutput = 'your ' + card + ' card has been freezed.' ;
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
@@ -73,44 +70,25 @@ const PayBillIntentHandler = {
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'PayBillIntent';
     },
     handle(handlerInput) {
-        var speakOutput = 'Your credit card bill this month is '+ sany.ccbill.amount + ' rupees';
         
-        speakOutput += ' .Would you like to pay the bill?';
+        var yes = handlerInput.requestEnvelope.request.intent.slots.yes.value;
+        var no = handlerInput.requestEnvelope.request.intent.slots.no.value;
+        var full_or_base = handlerInput.requestEnvelope.request.intent.slots.no.value;
+        var speakOutput;
+        var diff = json.cc.full - json.cc.base;
+        if (yes){
+            speakOutput = "you owe " + json.cc.full + " rupees to your credit card"
+            if(full_or_base === 'full'){
+                speakOutput = "you have paid " + json.cc.full +" rupees as full payment"
+            }else {
+                speakOutput = "you have paid " + json.cc.base + "rupees as base payment. you now owe " + diff + " rupees";
+            }
+        }
         
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .reprompt(speakOutput)
-            .getResponse();
-    }
-};
+        if(no){
+            speakOutput = "okay. jsut a reminder! your due date is 31st Oct."
+        }
 
-const YesBillPayIntentHandler = {
-    canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'YesBillPayIntent';
-    },
-    handle(handlerInput) {
-        var speakOutput = 'Great! lets proceed to payment page! Would you like to pay the full amount which is '+ sany.ccbill.amount;
-        
-        speakOutput += ' or Would you like to pay the base amount which is ' + sany.ccbill.base;
-        
-        speakOutput += ' or Would you like to pay your preferred amount?' ;
-        
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .reprompt(speakOutput)
-            .getResponse();
-    }
-};
-
-const NoBillPayIntentHandler = {
-    canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'NoBillPayIntent';
-    },
-    handle(handlerInput) {
-        var speakOutput = 'Thank you! Have a nice day!';
-        
         return handlerInput.responseBuilder
             .speak(speakOutput)
             //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
@@ -118,41 +96,25 @@ const NoBillPayIntentHandler = {
     }
 };
 
-const PayFullAmountIntentHandler = {
+const CheckBillIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'PayFullAmountIntent';
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'CheckBillIntent';
     },
     handle(handlerInput) {
-        var speakOutput = "Great Then! We will then move on to the payment window!" ;
-
+        var speakOutput;
+        if(json.cc.full === 0){
+           speakOutput = "you are all done" 
+        }else {
+        speakOutput = "you owe " + json.cc.full + " rupees and it's due on October 30th. Would you like to pay";
+        }
         return handlerInput.responseBuilder
             .speak(speakOutput)
-            //.reprompt(paymentResponse)
+            //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
             .getResponse();
-        
     }
 };
 
-const PayBaseAmountIntentHandler = {
-    canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'PayBaseAmountIntent';
-    },
-    handle(handlerInput) {
-        var remainingamount = sany.ccbill.amount - sany.ccbill.base;
-        
-        var speakOutput = "Great Then! We will then move on to the payment window! Your remaining credit amount to be paid is "+ remainingamount;
-        
-        speakOutput += " .Your credit card bill payment cycle ends at October 30th 2020" + " .To avoid any late fee, please pay before the deadline ends!" ;
-        
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            //.reprompt(paymentResponse)
-            .getResponse();
-        
-    }
-};
 
 const FundTransferIntentHandler = {
     canHandle(handlerInput) {
@@ -162,37 +124,20 @@ const FundTransferIntentHandler = {
     handle(handlerInput) {
         
         var money = handlerInput.requestEnvelope.request.intent.slots.money.value;
-        var benificiary = handlerInput.requestEnvelope.request.intent.slots.benificiary.value;
-        var balance = sany.balance - money;
-       
-
-        const speakOutput = 'Transfering' + money + 'to ' + benificiary + 'is done successfully'+ 'And your available balance is '+ balance;
+        var beneficiary = handlerInput.requestEnvelope.request.intent.slots.beneficiary.value;
+        var speakOutput;
+        if(json.balance < money){
+            speakOutput = 'you have insufficient balance';
+        } else{
+            speakOutput = 'you have transfered ' + money + ' rupees to ' + beneficiary;
+        }
+        
+        json.balance -= money;
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
             //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
             .getResponse();
-    }
-};
-
-
-const PayPrefferedAmountIntentHandler = {
-    canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'PayPrefferedAmountIntent';
-    },
-    handle(handlerInput) {
-        //var amountPaid = handlerInput.requestEnvelope.request.intents.slots.amount.value;
-        
-        //var speakOutput = "Great Then! We will then move on to the payment window! You are paying your preferred amount "+ credit.currency +" " + amountPaid;
-        
-        const speakOutput = "Reached here" ;
-        
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            //.reprompt(paymentResponse)
-            .getResponse();
-        
     }
 };
 
@@ -303,33 +248,14 @@ const ErrorHandler = {
  * payloads to the handlers above. Make sure any new handlers or interceptors you've
  * defined are included below. The order matters - they're processed top to bottom 
  * */
- 
-var sany = {
-    name: "Sanyam",
-    balance: "895623",
-    card: {
-        debit: 0,
-        card: 0
-    },
-    ccbill: {
-        amount: "15423",
-        base: "5236"
-    }
-}
-
 exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
-        HelloWorldIntentHandler,
-        ViewAccountIntentHandler,
+        CheckBalanceIntentHandler,
         FundTransferIntentHandler,
-        BlockCardIntentHandler,
+        CheckBillIntentHandler,
         PayBillIntentHandler,
-        YesBillPayIntentHandler,
-        NoBillPayIntentHandler,
-        PayFullAmountIntentHandler,
-        PayPrefferedAmountIntentHandler,
-        PayBaseAmountIntentHandler,
+        FreezeCardIntentHandler,
         HelpIntentHandler,
         CancelAndStopIntentHandler,
         FallbackIntentHandler,
